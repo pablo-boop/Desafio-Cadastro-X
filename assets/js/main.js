@@ -21,10 +21,16 @@ class ListUser {
         this.users.push(user)
     }
 
-    getZodiacSign() {
-        let birthdate = new Date(this.birthdate);
-        let day = birthdate.getDate();
-        let month = birthdate.getMonth() + 1;
+    countUsers(count) {
+        contador = document.getElementById("contador");
+        count = this.users.length;
+        document.getElementById("contador").textContentL = `Contador: ${count}`;
+    }
+
+    getZodiacSign(date) {
+        let birthdate = date.split("-");
+        let day = birthdate[2];
+        let month = birthdate[1];
         console.log("Passou pelo getSigno() da class User");
     
         if ((month == 1 && day <= 20) || (month == 12 && day >= 22)) {
@@ -54,28 +60,53 @@ class ListUser {
         }
     }
 
-    calculateAge() {
-        let birthdate = new Date(this.birthdate);
-        let year = birthdate.getFullYear();
-        let date = 2023;
-        let age = (date - year)
+    calculateAge(date) {
+        let birthdate = date.split("-")
+        let yy = Number(birthdate[0])
+        let year = 2023;
+        let age = (year - yy)
         return age
     }
 
     isPossibleClient() {
-        if(this.calculateAge() >= 18 || this.calculateAge() <= 31) {
-            return `Possivel cliente 😀`
+        let birthdate = document.getElementById("birthdate").value;
+        let age = this.calculateAge(birthdate);
+
+        if(age >= 18 || age <= 31) {
+            return `Sim 😀`
         } else {
-            return `Não é possivel cliente 😐`
+            return`Não 😑`
         }
     }
 
     getAllUsers() {
-
-    }
-
-    countUsers() {
-
+        if(this.users.length == 0) {
+            sendErrorMsg(`Não há usuários cadastrados.`)
+        } else {
+            document.getElementById("sub-div").classList.remove("hidden");
+            document.getElementById("title-page").classList.add("hidden");
+            document.getElementById("main-div").classList.add("hidden");
+        
+            let content = "";
+            
+            listUser.users.forEach((user) => {
+                content += `
+                <div id="user-list">
+                    <p>Nome: ${user.name}</p>
+                    <p>Email: ${user.email}</p>
+                    <p>Data de aniversario: ${user.birthdate}</p>
+                    <p>Endereço: ${user.address}</p>
+                    <p>Telefone: ${user.phone}</p>
+                    <p>Cpf: ${user.cpf}</p>
+                    <p>Idade:${user.age}</p>
+                    <p>Signo: ${user.sign}</p>
+                    <p>Possivel Cliente: ${user.possibleClient}</p>
+                </div>
+                `
+            })
+            document.getElementById("user-list").innerHTML = content;
+        }
+        document.getElementById("contador").textContent = `Contador: ${this.users.length}`
     }
 
 }
@@ -105,8 +136,15 @@ function isAnyInputEmpty() {
         sendErrorMsg(`Preencha o campo que está em branco!`)
         cleanInputs()
     } else {
-        sendSuccessMsg(`Parabéns, você entrou na lista de espera!`)
-        cleanInputs()
+        if(valida_cpf(cpf)) {
+            sendSuccessMsg(`Parabéns, você entrou na lista de espera!`)
+            cleanInputs()
+            const user = new User(name, email, dateInPTBR(birthdate), address, formatedCellphone(phone), formatedCPF(cpf), listUser.calculateAge(birthdate), listUser.getZodiacSign(birthdate), listUser.isPossibleClient())
+            listUser.add(user)
+        } else {
+            sendErrorMsg(`Cpf Inválido`)
+            cleanInputs()
+        }
     }
 }
 
@@ -140,30 +178,12 @@ function createUser() {
 
     isAnyInputEmpty()
     
-    document.getElementById("sub-div").classList.remove("hidden");
-
-    let content = "";
-
-    listUser.users.forEach((user) => {
-        content += `
-        <div id="user-list">
-            <p>Nome: ${user.name}</p>
-            <p>Email: ${user.email}</p>
-            <p>Data de aniversario: ${user.birthdate}</p>
-            <p>Endereço: ${user.address}</p>
-            <p>Telefone: ${formatedCellphone(user.phone)}</p>
-            <p>Cpf: ${formatedCPF(user.cpf)}</p>
-            <p>Idade:</p>
-            <p>Nome: ${user.name}</p>
-        </div>
-        `
-    })
 }
 
 function showRegister() {
-    document.getElementById("sub-div").classList.remove("hidden");
-    document.getElementById("title-page").classList.add("hidden");
-    document.getElementById("main-div").classList.add("hidden");
+    document.getElementById("sub-div").classList.add("hidden");
+    document.getElementById("title-page").classList.remove("hidden");
+    document.getElementById("main-div").classList.remove("hidden");
     console.log("Passou pela funcao showRegister()");
 
 }
@@ -223,10 +243,14 @@ function valida_cpf(cpf) {
     }
     else
         return false;
+
 }
 
 function dateInPTBR(date) {
-    date = document.getElementById("birthdate").value;
+    let birthdate = date.split("-")
+    let dateFormated = birthdate.reverse()
+    let datePTBR = dateFormated.toString()
+    return datePTBR
 }
 
 function showRegister() {
@@ -235,6 +259,10 @@ function showRegister() {
     document.getElementById("main-div").classList.remove("hidden");
     console.log("Passou pela funcao showRegister()");
 
+}
+
+function showUsers() {
+    listUser.getAllUsers()
 }
 
 function isUserAlreadyRegistered(cpf) {
