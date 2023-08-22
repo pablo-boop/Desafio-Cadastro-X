@@ -18,7 +18,17 @@ class ListUser {
     }
 
     add(user) {
-        this.users.push(user)
+        if(isAnyInputEmpty()) {
+            sendErrorMsg(`Preencha todos campos`)
+        } else if(!valida_cpf(user.cpf)) {
+            sendErrorMsg(`Cpf inválido`)
+        } else if(isUserAlreadyRegistered(user.cpf)) {
+            sendErrorMsg(`Cpf já cadastrado!`)
+        }else{
+            this.users.push(user)
+            sendSuccessMsg(`Parabens, você entrou no X!`)
+            cleanInputs()
+        }
     }
 
     countUsers(count) {
@@ -97,7 +107,7 @@ class ListUser {
                         <p><b>Data de aniversario:</b> ${user.birthdate}</p>
                         <p><b>Endereço:</b> ${user.address}</p>
                         <p><b>Telefone:</b> ${user.phone}</p>
-                        <p><b>Cpf:</b> ${user.cpf}</p>
+                        <p><b>Cpf:</b> ${formatedCPF(user.cpf)}</p>
                         <p><b>Idade:</b> ${user.age} anos</p>
                         <p><b>Signo:</b> ${user.sign}</p>
                         <p><b>Possivel Cliente:</b> ${user.possibleClient}</p>
@@ -130,28 +140,17 @@ function isAnyInputEmpty() {
     const address = document.getElementById("address").value;
     const phone = document.getElementById("phone").value;
     const cpf = document.getElementById("cpf").value;
-
+    
     if(name == "" && email == "" && birthdate == "" && address == "" && phone == "" && cpf== "" ) {
-        sendErrorMsg(`Preencha todos os campos!`)
+        return true
     } else if(name == "" || email == "" || birthdate == "" || address == "" || phone == "" || cpf== "") {
-        sendErrorMsg(`Preencha o campo que está em branco!`)
-        cleanInputs()
-    } else {
-        if(valida_cpf(cpf)) {
-            sendSuccessMsg(`Parabéns, você entrou na lista de espera!`)
-            cleanInputs()
-            const user = new User(name, email, dateInPTBR(birthdate), address, formatedCellphone(phone), formatedCPF(cpf), listUser.calculateAge(birthdate), listUser.getZodiacSign(birthdate), listUser.isPossibleClient(birthdate))
-            listUser.add(user)
-        } else {
-            sendErrorMsg(`Cpf Inválido`)
-            cleanInputs()
-        }
+        return true
     }
 }
 
 function sendErrorMsg(msg) {
     console.log("Passou pela funcao sendErrorMsg()");
-
+    
     document.getElementById("error-msg").innerHTML = msg;
     document.getElementById("error-msg").classList.remove("hidden");
     setTimeout(function () {
@@ -176,9 +175,9 @@ function createUser() {
     const address = document.getElementById("address").value;
     const phone = document.getElementById("phone").value;
     const cpf = document.getElementById("cpf").value;
-
-    isAnyInputEmpty()
+    const user = new User(name, email, dateInPTBR(birthdate), address, formatedCellphone(phone), cpf, listUser.calculateAge(birthdate), listUser.getZodiacSign(birthdate), listUser.isPossibleClient(birthdate))
     
+    listUser.add(user)
 }
 
 function showRegister() {
@@ -267,5 +266,13 @@ function showUsers() {
 }
 
 function isUserAlreadyRegistered(cpf) {
-    
+    console.log("passou aqui")
+    let isUserAlreadyRegistered = false;
+    listUser.users.forEach((user) => {
+        if(cpf == user.cpf){
+            isUserAlreadyRegistered = true;
+        }
+    })
+
+    return isUserAlreadyRegistered;
 }
