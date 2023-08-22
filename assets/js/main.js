@@ -68,14 +68,13 @@ class ListUser {
         return age
     }
 
-    isPossibleClient() {
-        let birthdate = document.getElementById("birthdate").value;
-        let age = this.calculateAge(birthdate);
+    isPossibleClient(date) {
+        let age = this.calculateAge(date);
 
-        if(age >= 18 || age <= 31) {
-            return `Sim 😀`
+        if(age >= 18 && age <= 31) {
+            return `Sim 😎`
         } else {
-            return`Não 😑`
+            return `Não 😑`
         }
     }
 
@@ -92,15 +91,17 @@ class ListUser {
             listUser.users.forEach((user) => {
                 content += `
                 <div id="user-list">
-                    <p>Nome: ${user.name}</p>
-                    <p>Email: ${user.email}</p>
-                    <p>Data de aniversario: ${user.birthdate}</p>
-                    <p>Endereço: ${user.address}</p>
-                    <p>Telefone: ${user.phone}</p>
-                    <p>Cpf: ${user.cpf}</p>
-                    <p>Idade:${user.age}</p>
-                    <p>Signo: ${user.sign}</p>
-                    <p>Possivel Cliente: ${user.possibleClient}</p>
+                    <div class="cardUsers">
+                        <p><b>Nome:</b> ${user.name}</p>
+                        <p><b>Email:</b> ${user.email}</p>
+                        <p><b>Data de aniversario:</b> ${user.birthdate}</p>
+                        <p><b>Endereço:</b> ${user.address}</p>
+                        <p><b>Telefone:</b> ${user.phone}</p>
+                        <p><b>Cpf:</b> ${user.cpf}</p>
+                        <p><b>Idade:</b> ${user.age} anos</p>
+                        <p><b>Signo:</b> ${user.sign}</p>
+                        <p><b>Possivel Cliente:</b> ${user.possibleClient}</p>
+                    </div>
                 </div>
                 `
             })
@@ -139,7 +140,7 @@ function isAnyInputEmpty() {
         if(valida_cpf(cpf)) {
             sendSuccessMsg(`Parabéns, você entrou na lista de espera!`)
             cleanInputs()
-            const user = new User(name, email, dateInPTBR(birthdate), address, formatedCellphone(phone), formatedCPF(cpf), listUser.calculateAge(birthdate), listUser.getZodiacSign(birthdate), listUser.isPossibleClient())
+            const user = new User(name, email, dateInPTBR(birthdate), address, formatedCellphone(phone), formatedCPF(cpf), listUser.calculateAge(birthdate), listUser.getZodiacSign(birthdate), listUser.isPossibleClient(birthdate))
             listUser.add(user)
         } else {
             sendErrorMsg(`Cpf Inválido`)
